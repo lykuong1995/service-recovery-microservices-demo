@@ -1,0 +1,19 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: recovery-service
+
+logging:
+  level:
+    root: INFO
+    com.kuong.recovery: DEBUG
+
+recovery:
+  order-service:
+    base-url: http://localhost:8082
+  schedule:
+    fixed-delay: 60000
+jwt:
+  secret: verySecretKeyChangeInProductionVerySecretKeyChangeInProduction
