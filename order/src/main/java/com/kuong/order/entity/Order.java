@@ -34,6 +34,12 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false)
+    private int retryCount;
+
+    @Column(nullable = false)
+    private int maxRetry;
+
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();

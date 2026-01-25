@@ -21,6 +21,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/internal/**").hasRole("SYSTEM")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
@@ -28,6 +29,7 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }

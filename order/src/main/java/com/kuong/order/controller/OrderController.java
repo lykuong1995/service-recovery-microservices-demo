@@ -2,6 +2,7 @@ package com.kuong.order.controller;
 
 import com.kuong.order.dto.OrderRequest;
 import com.kuong.order.entity.Order;
+import com.kuong.order.repository.OrderRepository;
 import com.kuong.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/orders")
@@ -31,5 +33,6 @@ public class OrderController {
         String username = authentication.getName();
         return orderService.getUserOrders(username);
     }
+
 }
 

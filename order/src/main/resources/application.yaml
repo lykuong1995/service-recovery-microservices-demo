@@ -10,6 +10,7 @@ spring:
     enabled: true
 
 jwt:
+  claim: SYSTEM
   secret: verySecretKeyChangeInProductionVerySecretKeyChangeInProduction
 
 server:
