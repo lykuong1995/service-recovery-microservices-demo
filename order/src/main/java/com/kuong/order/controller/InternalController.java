@@ -2,6 +2,7 @@ package com.kuong.order.controller;
 
 import com.kuong.order.entity.Order;
 import com.kuong.order.repository.OrderRepository;
+import com.kuong.order.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,8 @@ public class InternalController {
 
     @GetMapping("/recoverable")
     public List<Order> recoverable() {
-        return orderRepository.findByStatusAndRetryCountLessThan("FAILED", 3);
+        return orderRepository.findByStatusAndRetryCountLessThan(
+                OrderStatus.FAILED_TEMP, 3);
     }
 
     @PostMapping("/retry/{id}")
@@ -27,7 +29,7 @@ public class InternalController {
                 .orElseThrow();
 
         if (order.getRetryCount() >= order.getMaxRetry()) {
-            order.setStatus("PERMANENT_FAILURE");
+            order.setStatus(OrderStatus.FAILED_FINAL);
             return orderRepository.save(order);
         }
 
@@ -36,9 +38,9 @@ public class InternalController {
         boolean success = new Random().nextBoolean();
 
         if (success) {
-            order.setStatus("COMPLETED");
+            order.setStatus(OrderStatus.COMPLETED);
         } else {
-            order.setStatus("FAILED");
+            order.setStatus(OrderStatus.FAILED_TEMP);
         }
 
         return orderRepository.save(order);

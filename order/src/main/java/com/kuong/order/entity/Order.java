@@ -1,10 +1,14 @@
 package com.kuong.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.kuong.order.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -19,20 +23,18 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private String orderNumber;
+
     @Column(nullable = false)
     private String username;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderStatus status;
+
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal amount;
-
-    @Column(nullable = false)
-    private String status;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private BigDecimal totalAmount;
 
     @Column(nullable = false)
     private int retryCount;
@@ -40,14 +42,27 @@ public class Order {
     @Column(nullable = false)
     private int maxRetry;
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<OrderItem> items;
+
+    @Version
+    private Long version;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
     @PrePersist
-    public void prePersist() {
+    void prePersist() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    public void preUpdate() {
+    void preUpdate() {
         updatedAt = LocalDateTime.now();
     }
 }

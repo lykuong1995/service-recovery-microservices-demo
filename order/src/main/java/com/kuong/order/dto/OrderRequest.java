@@ -1,14 +1,14 @@
 package com.kuong.order.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class OrderRequest {
 
-    @NotNull
-    private BigDecimal amount;
+    @NotEmpty
+    private List<OrderItemRequest> items;
 }
 
