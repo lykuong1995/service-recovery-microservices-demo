@@ -1,9 +1,14 @@
 package com.kuong.auth.controller;
 
 import com.kuong.auth.dto.*;
+import com.kuong.auth.entities.User;
+import com.kuong.auth.repositories.UserRepositories;
 import com.kuong.auth.services.AuthService;
+import com.kuong.auth.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepositories userRepositories;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @PostMapping("/register")
     public void register(@Valid @RequestBody RegisterRequest request) {
@@ -19,8 +27,18 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-        return authService.login(request);
+    public AuthResponse login(@RequestBody LoginRequest request) {
+
+        User user = userRepositories.findByusername(request.getUsername());
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        return new AuthResponse(accessToken, refreshToken);
     }
 
 //    @GetMapping("/secure")
