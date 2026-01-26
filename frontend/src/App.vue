@@ -3,11 +3,25 @@
     <h1>Customer Order Portal</h1>
 
     <!-- LOGIN -->
-    <div v-if="!loggedIn" class="card">
-      <h2>Login</h2>
+    <div v-if="!loggedIn">
+      <h2>{{ isRegister ? "Register" : "Login" }}</h2>
+
       <input v-model="username" placeholder="Username" />
       <input v-model="password" type="password" placeholder="Password" />
-      <button @click="login">Login</button>
+
+      <button v-if="!isRegister" @click="login">Login</button>
+      <button v-else @click="register">Register</button>
+
+      <p style="margin-top:10px;">
+        <span v-if="!isRegister">
+          Don't have an account?
+          <a href="#" @click.prevent="toggleMode">Register</a>
+        </span>
+        <span v-else>
+          Already have an account?
+          <a href="#" @click.prevent="toggleMode">Login</a>
+        </span>
+      </p>
     </div>
 
     <!-- MAIN APP -->
@@ -86,6 +100,7 @@ export default {
       password: "",
       loggedIn: false,
       token: null,
+      isRegister: false,
       orders: [],
       cart: [],
       products: [
@@ -106,10 +121,35 @@ export default {
   },
 
   methods: {
+    toggleMode() {
+      this.isRegister = !this.isRegister;
+      this.username = "";
+      this.password = "";
+    },
+
+    async register() {
+      try {
+        await axios.post(
+          `${import.meta.env.VITE_AUTH_URL}/auth/register`,
+          {
+            username: this.username,
+            password: this.password,
+          }
+        );
+
+        alert("Registration successful. Please login.");
+        this.isRegister = false;
+        this.username = "";
+        this.password = "";
+
+      } catch (err) {
+        alert("Registration failed");
+      }
+    },
     async login() {
       try {
         const response = await axios.post(
-          "http://localhost:8081/auth/login",
+          `${import.meta.env.VITE_AUTH_URL}/auth/login`,
           {
             username: this.username,
             password: this.password,
