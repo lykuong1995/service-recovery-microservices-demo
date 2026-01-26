@@ -20,7 +20,7 @@ The system consists of four independent components:
 - **Auth Service** (Port 8081) – Handles login and JWT issuance
 - **Order Service** (Port 8082) – Manages orders and business logic
 - **Recovery Service** (Port 8083) – Retries failed orders in the background
-- **Frontend (Vue SPA)** (Port 517dfasdfasdf3) – User interface
+- **Frontend (Vue SPA)** (Port 5173) – User interface
 
 ---
 
