@@ -38,7 +38,7 @@ The system consists of four independent components:
 Create the following databases in PostgreSQL:
 
 auth_db,
-order_db
+order_db,
 
 Ensure your `application.yml` files match your local PostgreSQL credentials.
 
