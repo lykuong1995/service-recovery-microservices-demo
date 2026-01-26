@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final Random random = new Random();
 
     public Order create(String username, List<OrderItemRequest> itemsRequest) {
 
@@ -57,13 +59,17 @@ public class OrderService {
     }
 
     private void simulateProcessing(Order order) {
-    }
 
+        boolean success = random.nextBoolean();
+
+        if (success) {
+            order.setStatus(OrderStatus.COMPLETED);
+        } else {
+            order.setStatus(OrderStatus.FAILED_TEMP);
+        }
+    }
 
     public List<Order> getUserOrders(String username) {
-        // Username field was removed from Order entity,
-        // so return all orders for now
-        return orderRepository.findAll();
+        return orderRepository.findByusername(username);
     }
 }
-

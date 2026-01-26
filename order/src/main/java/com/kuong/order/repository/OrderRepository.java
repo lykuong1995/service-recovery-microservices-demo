@@ -7,4 +7,9 @@ import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByStatusAndRetryCountLessThan(OrderStatus status, int retryCount);
+    List<Order> findByusername(String username);
+    List<Order> findByStatusInAndRetryCountLessThan(
+            List<OrderStatus> statuses,
+            int retryCount
+    );
 }

@@ -18,8 +18,10 @@ public class InternalController {
 
     @GetMapping("/recoverable")
     public List<Order> recoverable() {
-        return orderRepository.findByStatusAndRetryCountLessThan(
-                OrderStatus.FAILED_TEMP, 3);
+        return orderRepository.findByStatusInAndRetryCountLessThan(
+                List.of(OrderStatus.PROCESSING, OrderStatus.FAILED_TEMP),
+                5
+        );
     }
 
     @PostMapping("/retry/{id}")
