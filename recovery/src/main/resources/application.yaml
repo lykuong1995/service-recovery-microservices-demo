@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: recovery-service
+    name: RECOVERY-SERVICE
 
 logging:
   level:
