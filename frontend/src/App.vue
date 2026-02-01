@@ -91,7 +91,7 @@
 
 <script>
 import axios from "axios";
-import api, { setToken } from "./api";
+import api from "./api";
 
 export default {
   data() {
@@ -149,18 +149,25 @@ export default {
     async login() {
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_AUTH_URL}/auth/login`,
+          `${import.meta.env.VITE_API_URL}/auth/login`,
           {
             username: this.username,
             password: this.password,
           }
         );
 
-        this.token = response.data.accessToken;
-        setToken(this.token);
+        const accessToken = response.data.accessToken;
+        const refreshToken = response.data.refreshToken;
+
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+
         this.loggedIn = true;
-        this.fetchOrders();
+
+        await this.fetchOrders();
+
       } catch (err) {
+        console.error(err);
         alert("Login failed");
       }
     },
