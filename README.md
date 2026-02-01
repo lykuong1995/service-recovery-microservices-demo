@@ -1,26 +1,50 @@
 # Distributed Order Processing System
 
-This project is a microservices-based order processing system built with Spring Boot and Vue.
+This project is a microservices-based distributed order processing system built with Spring Boot, Spring Cloud, and Vue.
 
 It demonstrates:
 
-- JWT-based authentication
+- JWT-based authentication (Access + Refresh Token)
 - Role-based authorization
-- Service-to-service authentication
+- Service-to-service authentication (SYSTEM role)
+- API Gateway routing
+- Service Discovery (Eureka)
 - Background recovery with retry logic
 - Eventual consistency
 - SPA frontend integration
 
 ---
 
-## Architecture
+## Architecture Overview
 
-The system consists of four independent components:
+The system consists of the following components:
 
-- **Auth Service** (Port 8081) – Handles login and JWT issuance
-- **Order Service** (Port 8082) – Manages orders and business logic
-- **Recovery Service** (Port 8083) – Retries failed orders in the background
-- **Frontend (Vue SPA)** (Port 5173) – User interface
+- **Discovery Service (Eureka Server)** – Port 8761  
+  Service registry for all microservices
+
+- **API Gateway** – Port 8080  
+  Single entry point for all frontend requests
+
+- **Auth Service** – Registers with Eureka  
+  Handles authentication, JWT issuance, and refresh
+
+- **Order Service** – Registers with Eureka  
+  Manages orders and business logic
+
+- **Recovery Service** – Registers with Eureka  
+  Background job that retries temporarily failed orders
+
+- **Frontend (Vue SPA)** – Port 5173  
+  User interface
+
+---
+
+## High-Level Flow
+
+Frontend → Gateway → (via Service Discovery) → Auth / Order Services  
+Recovery Service → Order Service (internal endpoint with SYSTEM role)
+
+Service Discovery removes hardcoded URLs and allows dynamic service resolution.
 
 ---
 
@@ -37,73 +61,117 @@ The system consists of four independent components:
 
 Create the following databases in PostgreSQL:
 
-auth_db,
-order_db,
+- auth_db
+- order_db
 
-Ensure your `application.yml` files match your local PostgreSQL credentials.
+Ensure each service's `application.yml` matches your local PostgreSQL credentials.
 
 ---
 
-## Start Backend Services
+## Start the System (Recommended Order)
 
-Run each service in a separate terminal.
+### 1️⃣ Start Discovery Service
 
-### Auth Service
-
-cd auth-service
+cd discovery-service  
 mvn spring-boot:run
 
-Runs on: 
-http://localhost:8081
+Dashboard:
+http://localhost:8761
 
 ---
 
-### Order Service
+### 2️⃣ Start Auth Service
 
-cd order-service
+cd auth-service  
 mvn spring-boot:run
 
-Runs on:
-http://localhost:8082
-
 ---
 
-### Recovery Service
+### 3️⃣ Start Order Service
 
-cd recovery-service
+cd order-service  
 mvn spring-boot:run
 
-Runs on:
-http://localhost:8083
+---
 
-The recovery service runs in the background and automatically retries failed orders.
+### 4️⃣ Start Recovery Service
+
+cd recovery-service  
+mvn spring-boot:run
 
 ---
 
-## Start Frontend
+### 5️⃣ Start API Gateway
 
-cd frontend
-npm install
+cd gateway  
+mvn spring-boot:run
+
+Gateway runs on:
+http://localhost:8080
+
+---
+
+### 6️⃣ Start Frontend
+
+cd frontend  
+npm install  
 npm run dev
 
-
 Open in browser:
-
 http://localhost:5173
 
+Frontend should point to:
+
+VITE_API_URL=http://localhost:8080
+
+All requests go through the Gateway.
 
 ---
 
 ## Testing the System
 
-1. Login via frontend
+1. Register or login via frontend
 2. Create several orders
-3. Some orders may fail
-4. Wait for recovery service to retry
-5. Refresh the order list to observe status updates
+3. Some orders may fail (simulated processing failure)
+4. Recovery service runs periodically and retries failed orders
+5. Refresh order list to observe status transitions:
+    - PROCESSING
+    - FAILED_TEMP
+    - COMPLETED
+    - FAILED_FINAL
 
 ---
 
-This project focuses on demonstrating distributed system concepts such as stateless authentication, service isolation, and background recovery.
+## Security Design
 
+- Access tokens are short-lived
+- Refresh tokens issue new access tokens
+- Gateway routes authenticated requests
+- Recovery service uses SYSTEM role to access internal endpoints
+- Order service protects `/internal/**` endpoints with role-based security
 
+---
+
+## Distributed System Concepts Demonstrated
+
+- Stateless JWT authentication
+- Role-based authorization
+- Service-to-service authentication
+- API Gateway pattern
+- Service Discovery (Eureka)
+- Load-balanced service calls
+- Background retry mechanism
+- Eventual consistency pattern
+
+---
+
+## Notes
+
+- All services register with Eureka automatically.
+- No hardcoded service URLs are used internally.
+- Gateway routes requests using `lb://SERVICE-NAME`.
+- Recovery service uses `@LoadBalanced RestTemplate` to call Order Service.
+
+---
+
+This project demonstrates practical distributed system architecture using Spring Boot and Spring Cloud while keeping the implementation lightweight and understandable.
