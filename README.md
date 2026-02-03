@@ -9,7 +9,7 @@ It demonstrates:
 - Service-to-service authentication (SYSTEM role)
 - API Gateway routing
 - Service Discovery (Eureka)
-- Background recovery with retry logic
+- Resilience (Resilience4j circuit breakers/retries) for internal flows
 - Eventual consistency
 - SPA frontend integration
 
@@ -29,10 +29,7 @@ The system consists of the following components:
   Handles authentication, JWT issuance, and refresh
 
 - **Order Service** – Registers with Eureka  
-  Manages orders and business logic
-
-- **Recovery Service** – Registers with Eureka  
-  Background job that retries temporarily failed orders
+  Manages orders, enrichment, and resilience logic
 
 - **Frontend (Vue SPA)** – Port 5173  
   User interface
@@ -42,7 +39,6 @@ The system consists of the following components:
 ## High-Level Flow
 
 Frontend → Gateway → (via Service Discovery) → Auth / Order Services  
-Recovery Service → Order Service (internal endpoint with SYSTEM role)
 
 Service Discovery removes hardcoded URLs and allows dynamic service resolution.
 
@@ -94,14 +90,7 @@ mvn spring-boot:run
 
 ---
 
-### 4️⃣ Start Recovery Service
-
-cd recovery-service  
-mvn spring-boot:run
-
----
-
-### 5️⃣ Start API Gateway
+### 4️⃣ Start API Gateway
 
 cd gateway  
 mvn spring-boot:run
@@ -111,7 +100,7 @@ http://localhost:8080
 
 ---
 
-### 6️⃣ Start Frontend
+### 5️⃣ Start Frontend
 
 cd frontend  
 npm install  
@@ -128,13 +117,25 @@ All requests go through the Gateway.
 
 ---
 
+## Running Multiple Order Instances
+
+By default the order service uses `server.port=0`, so each process binds to an available port. `EurekaPortConfig` copies the actual port into the Eureka metadata after startup, preventing every instance from appearing on port `0`. Start multiple copies with the same build:
+
+```
+cd order
+mvn spring-boot:run
+```
+
+or `java -jar target/order-0.0.1-SNAPSHOT.jar --server.port=0` repeatedly. Eureka will show distinct entries (same `ORDER-SERVICE` name, different ports), and the gateway can route to them via `lb://ORDER-SERVICE`.
+
+---
+
 ## Testing the System
 
 1. Register or login via frontend
 2. Create several orders
 3. Some orders may fail (simulated processing failure)
-4. Recovery service runs periodically and retries failed orders
-5. Refresh order list to observe status transitions:
+4. Refresh order list to observe how Resilience4j-enhanced internal retries affect status transitions:
     - PROCESSING
     - FAILED_TEMP
     - COMPLETED
@@ -147,8 +148,8 @@ All requests go through the Gateway.
 - Access tokens are short-lived
 - Refresh tokens issue new access tokens
 - Gateway routes authenticated requests
-- Recovery service uses SYSTEM role to access internal endpoints
 - Order service protects `/internal/**` endpoints with role-based security
+- Order service adds Resilience4j circuit breakers/retries around critical internal calls
 
 ---
 
@@ -160,7 +161,7 @@ All requests go through the Gateway.
 - API Gateway pattern
 - Service Discovery (Eureka)
 - Load-balanced service calls
-- Background retry mechanism
+- Runtime resilience via Resilience4j circuit breakers and retries
 - Eventual consistency pattern
 
 ---
@@ -170,7 +171,7 @@ All requests go through the Gateway.
 - All services register with Eureka automatically.
 - No hardcoded service URLs are used internally.
 - Gateway routes requests using `lb://SERVICE-NAME`.
-- Recovery service uses `@LoadBalanced RestTemplate` to call Order Service.
+- Order service publishes its actual random port (`server.port=0`) back to Eureka via `EurekaPortConfig`, so each instance shows a unique entry.
 
 ---
 
