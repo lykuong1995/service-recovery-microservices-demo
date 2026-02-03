@@ -13,7 +13,7 @@
 	</parent>
 
 	<groupId>com.kuong</groupId>
-	<artifactId>auth-service</artifactId>
+	<artifactId>auth</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>auth-service</name>
 	<description>Authentication Microservice</description>
