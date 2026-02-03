@@ -3,7 +3,9 @@ package com.kuong.order.controller;
 import com.kuong.order.entity.Order;
 import com.kuong.order.repository.OrderRepository;
 import com.kuong.order.OrderStatus;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Random;
 @RestController
 @RequestMapping("/internal")
 @RequiredArgsConstructor
+@Slf4j
 public class InternalController {
 
     private final OrderRepository orderRepository;
@@ -25,6 +28,7 @@ public class InternalController {
     }
 
     @PostMapping("/retry/{id}")
+    @CircuitBreaker(name = "orderRetry", fallbackMethod = "retryFallback")
     public Order retry(@PathVariable Long id) {
 
         Order order = orderRepository.findById(id)
@@ -46,5 +50,10 @@ public class InternalController {
         }
 
         return orderRepository.save(order);
+    }
+
+    private Order retryFallback(Long id, Throwable ex) {
+        log.warn("Order retry fallback for {} due to {}", id, ex.getMessage());
+        return orderRepository.findById(id).orElseThrow();
     }
 }

@@ -43,6 +43,12 @@
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
+		<!-- Resilience -->
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-spring-boot3</artifactId>
+		</dependency>
+
 		<!-- Optional: Security (only if protecting endpoints) -->
 		<!--
         <dependency>
