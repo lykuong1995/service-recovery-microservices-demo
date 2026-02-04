@@ -1,0 +1,48 @@
+services:
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: lykuong
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+  discovery:
+    build: ./discovery
+    ports:
+      - "8761:8761"
+
+  auth:
+    build: ./auth
+    environment:
+      DB_HOST: postgres
+      DB_USERNAME: lykuong
+      DB_PASSWORD: password
+      EUREKA_HOST: discovery
+    depends_on:
+      - postgres
+      - discovery
+
+  order:
+    build: ./order
+    environment:
+      DB_HOST: postgres
+      DB_USERNAME: lykuong
+      DB_PASSWORD: password
+      EUREKA_HOST: discovery
+    depends_on:
+      - postgres
+      - discovery
+
+  gateway:
+    build: ./gateway
+    environment:
+      EUREKA_HOST: discovery
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - discovery
