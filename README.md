@@ -176,3 +176,29 @@ or `java -jar target/order-0.0.1-SNAPSHOT.jar --server.port=0` repeatedly. Eurek
 ---
 
 This project demonstrates practical distributed system architecture using Spring Boot and Spring Cloud while keeping the implementation lightweight and understandable.
+
+---
+
+## Running with Docker Compose
+
+1. Build all artifacts using a JDK 17+ runtime (the Maven command below sets `JAVA_HOME` so the compiler runs with the same version as the services expect):
+
+   ```
+   JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home mvn -DskipTests -B package
+   ```
+
+2. Start the stack:
+
+   ```
+   docker compose up --build
+   ```
+
+   The Compose file now defines a Postgres container that creates `auth_db` and `order_db` for you (`postgres-init/init.sql`), so the auth and order services can run Flyway migrations without additional setup.
+
+3. Service-to-service wiring is handled via the environment variables that Compose injects, so Auth/Order connect to Postgres using `DB_USERNAME=lykuong` and `DB_PASSWORD=password`, and the Gateway binds to host `8080` through `SERVER_PORT=8080`.
+
+4. Tear the stack down when you are done:
+
+   ```
+   docker compose down
+   ```
