@@ -8,7 +8,7 @@ services:
     volumes:
       - ./postgres-init:/docker-entrypoint-initdb.d
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   discovery:
     build: ./discovery
@@ -36,6 +36,18 @@ services:
     depends_on:
       - postgres
       - discovery
+
+  product:
+    build: ./product
+    environment:
+      DB_HOST: postgres
+      DB_USERNAME: lykuong
+      DB_PASSWORD: password
+      EUREKA_HOST: discovery
+    depends_on:
+      - postgres
+      - discovery
+
 
   gateway:
     build: ./gateway
