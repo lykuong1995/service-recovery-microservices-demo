@@ -21,7 +21,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/internal/**").hasRole("SYSTEM")
+                        .requestMatchers("/internal/**").hasAnyRole("SYSTEM", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
@@ -34,4 +34,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
