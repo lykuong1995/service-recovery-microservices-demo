@@ -1,6 +1,7 @@
 import { computed, ref } from "vue";
 import { clearTokens, getAccessToken, tokenEpoch } from "../../shared/lib/tokens";
 import { navigate } from "../../shared/lib/hashRouter";
+import { decodeJwtPayload } from "../../shared/lib/jwt";
 
 const authEpoch = ref(0);
 
@@ -10,6 +11,15 @@ export function useAuth() {
     tokenEpoch.value;
     return Boolean(getAccessToken());
   });
+
+  const role = computed(() => {
+    authEpoch.value;
+    tokenEpoch.value;
+    const payload = decodeJwtPayload(getAccessToken());
+    return payload?.role ?? null;
+  });
+
+  const isAdmin = computed(() => role.value === "ADMIN");
 
   function logout() {
     clearTokens();
@@ -21,5 +31,5 @@ export function useAuth() {
     authEpoch.value += 1;
   }
 
-  return { isAuthenticated, logout, notifyAuthChanged };
+  return { isAuthenticated, role, isAdmin, logout, notifyAuthChanged };
 }

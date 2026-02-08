@@ -12,6 +12,8 @@ VITE_API_URL=http://localhost:8080 npm run dev
 
 App runs on `http://localhost:5173`.
 
+Note: API calls go cross-origin to the Gateway; ensure Gateway CORS allows `http://localhost:5173`.
+
 ## Routes
 
 This project uses simple hash routing (no extra deps):

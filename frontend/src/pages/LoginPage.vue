@@ -94,7 +94,17 @@ async function submit() {
     notifyAuthChanged();
     navigate("/products");
   } catch (err) {
-    setNotice("Request failed. Check credentials and backend.", "danger");
+    const status = err?.response?.status;
+    if (!status) {
+      setNotice(
+        "Network error. Check VITE_API_URL and that the Gateway is running.",
+        "danger"
+      );
+    } else if (status === 401) {
+      setNotice("Invalid username/password (401).", "danger");
+    } else {
+      setNotice(`Login failed (HTTP ${status}).`, "danger");
+    }
   } finally {
     loading.value = false;
   }
@@ -123,4 +133,3 @@ async function submit() {
   color: var(--muted);
 }
 </style>
-

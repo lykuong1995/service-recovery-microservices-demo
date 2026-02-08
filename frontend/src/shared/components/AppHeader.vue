@@ -12,6 +12,7 @@
       <AppNavLink to="/products">Products</AppNavLink>
       <AppNavLink to="/cart">Cart</AppNavLink>
       <AppNavLink to="/orders">Orders</AppNavLink>
+      <AppNavLink v-if="isAdmin" to="/admin/orders">Admin</AppNavLink>
     </nav>
 
     <div class="actions">
@@ -23,6 +24,10 @@
 <script setup>
 import AppNavLink from "./AppNavLink.vue";
 import UiButton from "./ui/UiButton.vue";
+
+defineProps({
+  isAdmin: { type: Boolean, default: false },
+});
 
 defineEmits(["logout"]);
 </script>
@@ -90,4 +95,3 @@ defineEmits(["logout"]);
   }
 }
 </style>
-

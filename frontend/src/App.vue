@@ -1,6 +1,6 @@
 <template>
   <div class="app-container stack">
-    <AppHeader v-if="isAuthenticated" @logout="logout" />
+    <AppHeader v-if="isAuthenticated" :isAdmin="isAdmin" @logout="logout" />
 
     <main class="stack">
       <component :is="pageComponent" />
@@ -18,8 +18,9 @@ import ProductsPage from "./pages/ProductsPage.vue";
 import CartPage from "./pages/CartPage.vue";
 import OrdersPage from "./pages/OrdersPage.vue";
 import NotFoundPage from "./pages/NotFoundPage.vue";
+import AdminOrdersPage from "./pages/admin/AdminOrdersPage.vue";
 
-const { isAuthenticated, logout } = useAuth();
+const { isAuthenticated, isAdmin, logout } = useAuth();
 const { route } = useHashRouter();
 
 const pageComponent = computed(() => {
@@ -34,6 +35,8 @@ const pageComponent = computed(() => {
       return CartPage;
     case "/orders":
       return OrdersPage;
+    case "/admin/orders":
+      return isAdmin.value ? AdminOrdersPage : NotFoundPage;
     case "/":
       return ProductsPage;
     default:
