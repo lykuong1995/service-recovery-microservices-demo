@@ -5,6 +5,7 @@ import com.kuong.order.entity.Order;
 import com.kuong.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +21,10 @@ public class OrderController {
     @PostMapping
     public Order create(
             @Valid @RequestBody OrderRequest request,
-            Authentication authentication
+            Authentication authentication,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
     ) {
-        return orderService.create(authentication.getName(), request.getItems());
+        return orderService.create(authentication.getName(), request.getItems(), authHeader);
     }
 
     @GetMapping("/my")
@@ -32,4 +34,3 @@ public class OrderController {
     }
 
 }
-

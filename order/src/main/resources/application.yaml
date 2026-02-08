@@ -15,6 +15,18 @@ jwt:
   claim: SYSTEM
   secret: verySecretKeyChangeInProductionVerySecretKeyChangeInProduction
 
+inventory:
+  service:
+    url: ${INVENTORY_SERVICE_URL:http://gateway:8080}
+
+product:
+  service:
+    url: ${PRODUCT_SERVICE_URL:http://gateway:8080}
+
+payment:
+  service:
+    url: ${PAYMENT_SERVICE_URL:http://gateway:8080}
+
 server:
   port: 0
 

@@ -1,15 +1,16 @@
 package com.kuong.order.controller;
 
+import com.kuong.order.OrderStatus;
 import com.kuong.order.entity.Order;
 import com.kuong.order.repository.OrderRepository;
-import com.kuong.order.OrderStatus;
+import com.kuong.order.service.OrderService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Random;
 
 @RestController
 @RequestMapping("/internal")
@@ -18,6 +19,7 @@ import java.util.Random;
 public class InternalController {
 
     private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
     @GetMapping("/recoverable")
     public List<Order> recoverable() {
@@ -29,30 +31,14 @@ public class InternalController {
 
     @PostMapping("/retry/{id}")
     @CircuitBreaker(name = "orderRetry", fallbackMethod = "retryFallback")
-    public Order retry(@PathVariable Long id) {
-
-        Order order = orderRepository.findById(id)
-                .orElseThrow();
-
-        if (order.getRetryCount() >= order.getMaxRetry()) {
-            order.setStatus(OrderStatus.FAILED_FINAL);
-            return orderRepository.save(order);
-        }
-
-        order.setRetryCount(order.getRetryCount() + 1);
-
-        boolean success = new Random().nextBoolean();
-
-        if (success) {
-            order.setStatus(OrderStatus.COMPLETED);
-        } else {
-            order.setStatus(OrderStatus.FAILED_TEMP);
-        }
-
-        return orderRepository.save(order);
+    public Order retry(
+            @PathVariable Long id,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
+    ) {
+        return orderService.retry(id, authHeader);
     }
 
-    private Order retryFallback(Long id, Throwable ex) {
+    private Order retryFallback(Long id, String authHeader, Throwable ex) {
         log.warn("Order retry fallback for {} due to {}", id, ex.getMessage());
         return orderRepository.findById(id).orElseThrow();
     }
