@@ -48,6 +48,40 @@ services:
       - postgres
       - discovery
 
+  inventory:
+    build: ./inventory
+    environment:
+      DB_HOST: postgres
+      DB_USERNAME: lykuong
+      DB_PASSWORD: password
+      EUREKA_HOST: discovery
+    depends_on:
+      - postgres
+      - discovery
+
+  payment:
+    build: ./payment
+    environment:
+      DB_HOST: postgres
+      DB_USERNAME: lykuong
+      DB_PASSWORD: password
+      EUREKA_HOST: discovery
+    depends_on:
+      - postgres
+      - discovery
+
+  cart:
+    build: ./cart
+    environment:
+      DB_HOST: postgres
+      DB_USERNAME: lykuong
+      DB_PASSWORD: password
+      EUREKA_HOST: discovery
+      ORDER_SERVICE_URL: http://gateway:8080
+    depends_on:
+      - postgres
+      - discovery
+
 
   gateway:
     build: ./gateway

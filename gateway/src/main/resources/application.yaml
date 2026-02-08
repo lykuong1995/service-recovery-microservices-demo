@@ -18,6 +18,11 @@ spring:
           uri: lb://ORDER-SERVICE
           predicates:
             - Path=/internal/**
+
+        - id: payment
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/payments/**
 server:
   port: ${SERVER_PORT:0}
 
