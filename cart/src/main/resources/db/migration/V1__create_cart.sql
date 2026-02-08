@@ -1,0 +1,20 @@
+CREATE TABLE carts (
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE cart_items (
+    id BIGSERIAL PRIMARY KEY,
+    cart_id BIGINT NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
+    product_id BIGINT NOT NULL,
+    product_name VARCHAR(200) NOT NULL,
+    price NUMERIC(10,2) NOT NULL,
+    quantity INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_carts_username ON carts(username);
+CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);

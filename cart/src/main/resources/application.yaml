@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: cart
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/cart_db
+    username: ${DB_USERNAME:lykuong}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+jwt:
+  claim: SYSTEM
+  secret: verySecretKeyChangeInProductionVerySecretKeyChangeInProduction
+
+order:
+  service:
+    url: ${ORDER_SERVICE_URL:http://gateway:8080}
+
+server:
+  port: 0
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka
