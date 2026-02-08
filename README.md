@@ -31,6 +31,15 @@ The system consists of the following components:
 - **Order Service** – Registers with Eureka  
   Manages orders, enrichment, and resilience logic
 
+- **Product Service** – Registers with Eureka  
+  Product catalog (products + categories)
+
+- **Cart Service** – Registers with Eureka  
+  User carts + checkout (creates orders)
+
+- **Payment Service** – Registers with Eureka  
+  Payment processing API
+
 - **Frontend (Vue SPA)** – Port 5173  
   User interface
 
@@ -59,6 +68,10 @@ Create the following databases in PostgreSQL:
 
 - auth_db
 - order_db
+- product_db
+- inventory_db
+- cart_db
+- payment_db
 
 Ensure each service's `application.yml` matches your local PostgreSQL credentials.
 
@@ -68,7 +81,7 @@ Ensure each service's `application.yml` matches your local PostgreSQL credential
 
 ### 1️⃣ Start Discovery Service
 
-cd discovery-service  
+cd discovery  
 mvn spring-boot:run
 
 Dashboard:
@@ -78,14 +91,39 @@ http://localhost:8761
 
 ### 2️⃣ Start Auth Service
 
-cd auth-service  
+cd auth  
+mvn spring-boot:run
+
+Admin login (seeded by Flyway):
+
+- username: `admin`
+- password: `admin123`
+
+---
+
+### 3️⃣ Start Core Services (in any order)
+
+cd product  
 mvn spring-boot:run
 
 ---
 
-### 3️⃣ Start Order Service
+cd inventory  
+mvn spring-boot:run
 
-cd order-service  
+---
+
+cd payment  
+mvn spring-boot:run
+
+---
+
+cd cart  
+mvn spring-boot:run
+
+---
+
+cd order  
 mvn spring-boot:run
 
 ---
