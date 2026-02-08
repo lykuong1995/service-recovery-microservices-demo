@@ -23,6 +23,21 @@ spring:
           uri: lb://PAYMENT-SERVICE
           predicates:
             - Path=/payments/**
+
+        - id: product
+          uri: lb://PRODUCT
+          predicates:
+            - Path=/products,/products/**,/categories,/categories/**
+
+        - id: cart
+          uri: lb://CART
+          predicates:
+            - Path=/cart,/cart/**
+
+        - id: inventory
+          uri: lb://INVENTORY
+          predicates:
+            - Path=/inventory,/inventory/**
 server:
   port: ${SERVER_PORT:0}
 
